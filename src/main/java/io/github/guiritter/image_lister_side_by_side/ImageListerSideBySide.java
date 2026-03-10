@@ -1,140 +1,100 @@
 package io.github.guiritter.image_lister_side_by_side;
 
-import static java.lang.System.exit;
 import static java.lang.System.out;
-import static javax.swing.JFileChooser.APPROVE_OPTION;
-import static javax.swing.JFileChooser.DIRECTORIES_ONLY;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.File;
+
+import static javax.swing.BoxLayout.Y_AXIS;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+
+import java.awt.Dimension;
+import java.awt.Desktop.Action;
+import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
+import java.util.LinkedList;
+import java.util.List;
 
-import javax.imageio.ImageIO;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-
-import org.joml.Vector3f;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 public class ImageListerSideBySide {
 
-	private static File candidateFolder;
-	private static Map<String, Vector3f> candidateAverageByImageFilePath = new HashMap<>();
+	private static final JFrame frame;
 
-	private static Map<String, String> sizeByImageFilePath = new HashMap<>();
-	
-	private static File targetFolder;
-	private static Map<String, Vector3f> targetAverageByImageFilePath = new HashMap<>();
-	
-	public static final Vector3f vectorMaximum = new Vector3f(255, 255, 255);
-	public static final Vector3f vectorMinimum = new Vector3f(0, 0, 0);
+	private static final List<String> imageList = new LinkedList<>();
 
-	public static final float vectorDistanceMaximum = vectorMinimum.distance(vectorMaximum);
+	private static int imagePreviewHeightMax;
+	private static int imagePreviewWidthMax;
+
+	private static JScrollPane pane;
+	
+	private static JPanel panel;
+
+	private static final JTextArea textArea;
 
 	static {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
-	}
 
-	private static final void findSimilar(String targetImageFilePath, Vector3f targetAverage) {
-		var vectorDistanceSmallest = vectorDistanceMaximum;
-		float vectorDistance;
-		var candidateImageFilePathSmallest = "";
+		frame = new JFrame();
+		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), Y_AXIS));
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		for (var candidate : candidateAverageByImageFilePath.entrySet()) {
-			vectorDistance = targetAverage.distance(candidate.getValue());
+		// pane = new JScrollPane();
+		// frame.getContentPane().add(pane);
 
-			if (vectorDistance < vectorDistanceSmallest) {
-				vectorDistanceSmallest = vectorDistance;
-				candidateImageFilePathSmallest = candidate.getKey();
-			}
-		}
+		// panel = new JPanel();
+		// pane.setViewportView(panel);
 
-		out.format("for\n%s %s\nmost similar is\n%s %s\n\n", targetImageFilePath, sizeByImageFilePath.get(targetImageFilePath), candidateImageFilePathSmallest, sizeByImageFilePath.get(candidateImageFilePathSmallest));
-	}
+		// var initButton = new JButton("init");
+		// ActionListener onInitPressed = e -> onInitPressed();
+		// initButton.addActionListener(onInitPressed);
+		// panel.add(initButton);
+		
+		// panel = new JPanel();
+		// frame.getContentPane().add(panel);
 
-	private static final void storeCandidateAverage(File imageFile) {
-		storeAverage(imageFile, candidateAverageByImageFilePath);
-	}
+		textArea = new JTextArea();
+		frame.getContentPane().add(textArea);
 
-	private static final void storeTargetAverage(File imageFile) {
-		storeAverage(imageFile, targetAverageByImageFilePath);
-	}
+		var readListButton = new JButton("read list");
+		ActionListener onReadListPressed = e -> onInitPressed();
+		readListButton.addActionListener(onReadListPressed);
+		readListButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
+		readListButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, readListButton.getPreferredSize().height));
+		frame.getContentPane().add(readListButton);
+	} 
 
-	private static final void storeAverage(File imageFile, Map<String, Vector3f> averageByImageFilePath) {
-		BufferedImage bufferedImage;
+	// private static final void onInitPressed() {
+	// 	// JOptionPane.show
 
-		try {
-			bufferedImage = ImageIO.read(imageFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-			exit(0);
-			return;
-		}
+	// 	imagePreviewWidthMax = panel.getWidth() / 3;
+	// 	imagePreviewHeightMax = panel.getHeight() / 3;
+	// }
 
-		var width = bufferedImage.getWidth();
-		var height = bufferedImage.getHeight();
+	private static final void onInitPressed() {
+		var inputText = textArea.getText();
+		var lineList = inputText.split("\n");
+		imageList.addAll(List.of(lineList));
 
-		sizeByImageFilePath.put(imageFile.getAbsolutePath(), String.format("%d x %d", width, height));
+		frame.getContentPane().removeAll();
 
-		var pixelAmount = width * height;
+		pane = new JScrollPane();
+		frame.getContentPane().add(pane);
 
-		int x, y, rgb;
-
-		Color color;
-
-		long r = 0, g = 0, b = 0;
-
-		for (y = 0; y < height; y++) {
-			for (x = 0; x < width; x++) {
-				rgb = bufferedImage.getRGB(x, y);
-				color = new Color(rgb, true);
-				r += color.getRed();
-				g += color.getGreen();
-				b += color.getBlue();
-			}
-		}
-
-		var vector = new Vector3f(
-			((float) r) / ((float) pixelAmount),
-			((float) g) / ((float) pixelAmount),
-			((float) b) / ((float) pixelAmount)
-		);
-
-		averageByImageFilePath.put(imageFile.getAbsolutePath(), vector);
+		panel = new JPanel();
+		pane.setViewportView(panel);
 	}
 
 	public static void main(String args[]) throws IOException {
-		if (args.length > 0) {
-			targetFolder = new File(args[0]);
-			candidateFolder = new File(args[1]);
-		} else {
-			JFileChooser chooser = new JFileChooser();
-			chooser.setFileSelectionMode(DIRECTORIES_ONLY);
-			chooser.setDialogTitle("Choose the target data folder");
-			if (chooser.showOpenDialog(null) != APPROVE_OPTION) {
-				return;
-			}
-			targetFolder = chooser.getSelectedFile();
-			if (targetFolder == null) {
-				return;
-			}
-			chooser.setDialogTitle("Choose the candidate data folder");
-			if (chooser.showOpenDialog(null) != APPROVE_OPTION) {
-				return;
-			}
-			candidateFolder = chooser.getSelectedFile();
-			if (candidateFolder == null) {
-				return;
-			}
-		}
-
-		Stream.of(targetFolder.listFiles()).forEach(ImageListerSideBySide::storeTargetAverage);
-		Stream.of(candidateFolder.listFiles()).forEach(ImageListerSideBySide::storeCandidateAverage);
-		targetAverageByImageFilePath.forEach(ImageListerSideBySide::findSimilar);
+		out.println("ImageListerSideBySide");
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
 	}
 }
