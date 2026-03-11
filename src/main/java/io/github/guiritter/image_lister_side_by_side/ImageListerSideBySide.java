@@ -7,6 +7,8 @@ import static javax.swing.BoxLayout.Y_AXIS;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.Desktop.Action;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -25,6 +27,10 @@ import javax.swing.JTextArea;
 public class ImageListerSideBySide {
 
 	private static final JFrame frame;
+
+	private static final int HALF_PADDING = 5;
+
+	private static final int FULL_PADDING = 2 * HALF_PADDING;
 
 	private static final List<String> imageList = new LinkedList<>();
 
@@ -69,6 +75,16 @@ public class ImageListerSideBySide {
 		readListButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, readListButton.getPreferredSize().height));
 		frame.getContentPane().add(readListButton);
 	} 
+
+	private static final GridBagConstraints buildGBC(int y, int topPadding, int bottomPadding) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = y;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
+		gbc.insets = new Insets(topPadding, FULL_PADDING, bottomPadding, FULL_PADDING);
+		return gbc;
+	}
 
 	// private static final void onInitPressed() {
 	// 	// JOptionPane.show
