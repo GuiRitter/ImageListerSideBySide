@@ -131,9 +131,9 @@ public class ImageListerSideBySide {
 		var labelRight = new JTextField(imageCouple.imageRight);
 
 		couplePanel.add(labelLeft, buildGBC(0, 0, FULL_PADDING, FULL_PADDING));
-		couplePanel.add(labelRight, buildGBC(0, 0, FULL_PADDING, FULL_PADDING));
-		couplePanel.add(imageComponentLeft, buildGBC(0, 0, FULL_PADDING, FULL_PADDING));
-		couplePanel.add(imageComponentRight, buildGBC(0, 0, FULL_PADDING, FULL_PADDING));
+		couplePanel.add(labelRight, buildGBC(0, 1, FULL_PADDING, FULL_PADDING));
+		couplePanel.add(imageComponentLeft, buildGBC(1, 0, FULL_PADDING, FULL_PADDING));
+		couplePanel.add(imageComponentRight, buildGBC(1, 1, FULL_PADDING, FULL_PADDING));
 	}
 
 	private static final void onInitPressed() {
@@ -185,6 +185,7 @@ public class ImageListerSideBySide {
 			newWidth = (int) (newHeight * aspectRatio);
 		}
 
+		out.format("ImageListerSideBySide.resizeImage; originalWidth: %d; originalHeight: %d; newWidth: %d; newHeight %d\n", originalWidth, originalHeight, newWidth, newHeight);
 		BufferedImage newImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
 		newImage.createGraphics().drawImage(originalImage, 0, 0, newWidth, newHeight, null);
 		return newImage;
