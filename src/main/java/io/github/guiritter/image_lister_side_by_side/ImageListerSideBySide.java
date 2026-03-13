@@ -60,20 +60,6 @@ public class ImageListerSideBySide {
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), Y_AXIS));
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-		// pane = new JScrollPane();
-		// frame.getContentPane().add(pane);
-
-		// panel = new JPanel();
-		// pane.setViewportView(panel);
-
-		// var initButton = new JButton("init");
-		// ActionListener onInitPressed = e -> onInitPressed();
-		// initButton.addActionListener(onInitPressed);
-		// panel.add(initButton);
-
-		// panel = new JPanel();
-		// frame.getContentPane().add(panel);
-
 		textArea = new JTextArea();
 		frame.getContentPane().add(textArea);
 
@@ -117,6 +103,9 @@ public class ImageListerSideBySide {
 			return;
 		}
 
+		var sizeLeft = new JTextField(imageLeft.getWidth() + " x " + imageLeft.getHeight());
+		var sizeRight = new JTextField(imageRight.getWidth() + " x " + imageRight.getHeight());
+
 		imageLeft = resizeImage(imageLeft, imagePreviewWidthMax, imagePreviewHeightMax);
 		imageRight = resizeImage(imageRight, imagePreviewWidthMax, imagePreviewHeightMax);
 
@@ -130,8 +119,10 @@ public class ImageListerSideBySide {
 
 		couplePanel.add(labelLeft, buildGBC(0, 0, HALF_PADDING, 0, EAST));
 		couplePanel.add(labelRight, buildGBC(1, 0, HALF_PADDING, 0, WEST));
-		couplePanel.add(imageComponentLeft, buildGBC(0, 1, 0, HALF_PADDING, EAST));
-		couplePanel.add(imageComponentRight, buildGBC(1, 1, 0, HALF_PADDING, WEST));
+		couplePanel.add(sizeLeft, buildGBC(0, 1, 0, 0, EAST));
+		couplePanel.add(sizeRight, buildGBC(1, 1, 0, 0, WEST));
+		couplePanel.add(imageComponentLeft, buildGBC(0, 2, 0, HALF_PADDING, EAST));
+		couplePanel.add(imageComponentRight, buildGBC(1, 2, 0, HALF_PADDING, WEST));
 
 		frame.revalidate();
 	}
