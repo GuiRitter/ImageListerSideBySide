@@ -4,12 +4,12 @@ import static java.awt.GridBagConstraints.EAST;
 import static java.awt.GridBagConstraints.WEST;
 import static java.lang.System.exit;
 import static java.lang.System.out;
-import static javax.swing.BoxLayout.Y_AXIS;
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.WARNING_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -46,7 +46,7 @@ public class ImageListerSideBySide {
 	private static int imagePreviewHeightMax;
 	private static int imagePreviewWidthMax;
 
-	private static JScrollPane pane;
+	private static final JScrollPane pane = new JScrollPane();
 
 	private static JPanel panel;
 
@@ -57,18 +57,20 @@ public class ImageListerSideBySide {
 		JDialog.setDefaultLookAndFeelDecorated(true);
 
 		frame = new JFrame();
-		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), Y_AXIS));
+		frame.getContentPane().setLayout(new BorderLayout());
 		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		textArea = new JTextArea();
-		frame.getContentPane().add(textArea);
+		pane.setViewportView(textArea);
+
+		frame.getContentPane().add(pane, BorderLayout.CENTER);
 
 		var readListButton = new JButton("read list");
 		ActionListener onReadListPressed = e -> onInitPressed();
 		readListButton.addActionListener(onReadListPressed);
 		readListButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
 		readListButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, readListButton.getPreferredSize().height));
-		frame.getContentPane().add(readListButton);
+		frame.getContentPane().add(readListButton, BorderLayout.SOUTH);
 	}
 
 	private static final GridBagConstraints buildGBC(int x, int y, int topPadding, int bottomPadding, int anchor) {
@@ -131,7 +133,7 @@ public class ImageListerSideBySide {
 
 		imagePreviewWidthMax = textArea.getWidth() / 3;
 		imagePreviewHeightMax = textArea.getHeight() / 3;
-	
+
 		var inputText = textArea.getText();
 		var lineList = inputText.split("\n");
 		var imageList = new LinkedList<String>();
@@ -152,9 +154,7 @@ public class ImageListerSideBySide {
 		}
 
 		frame.getContentPane().removeAll();
-
-		pane = new JScrollPane();
-		frame.getContentPane().add(pane);
+		frame.getContentPane().add(pane, BorderLayout.CENTER);
 
 		panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
