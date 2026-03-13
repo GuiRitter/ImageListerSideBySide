@@ -1,5 +1,7 @@
 package io.github.guiritter.image_lister_side_by_side;
 
+import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.WEST;
 import static java.lang.System.exit;
 import static java.lang.System.out;
 import static javax.swing.BoxLayout.Y_AXIS;
@@ -37,7 +39,7 @@ public class ImageListerSideBySide {
 
 	private static final int HALF_PADDING = 5;
 
-	private static final int FULL_PADDING = 2 * HALF_PADDING;
+	// private static final int FULL_PADDING = 2 * HALF_PADDING;
 
 	private static final List<ImageCouple> imageCoupleList = new LinkedList<>();
 
@@ -83,22 +85,18 @@ public class ImageListerSideBySide {
 		frame.getContentPane().add(readListButton);
 	}
 
-	private static final GridBagConstraints buildGBC(int x, int y, int topPadding, int bottomPadding) {
+	private static final GridBagConstraints buildGBC(int x, int y, int topPadding, int bottomPadding, int anchor) {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = x;
 		gbc.gridy = y;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.weightx = 1.0;
-		gbc.insets = new Insets(topPadding, FULL_PADDING, bottomPadding, FULL_PADDING);
+		// gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.fill = GridBagConstraints.NONE;
+		// gbc.fill = GridBagConstraints.BOTH;
+		// gbc.weightx = 1.0;
+		gbc.insets = new Insets(topPadding, 0, bottomPadding, 0);
+		gbc.anchor = anchor;
 		return gbc;
 	}
-
-	// private static final void onInitPressed() {
-	// 	// JOptionPane.show
-
-	// 	imagePreviewWidthMax = panel.getWidth() / 3;
-	// 	imagePreviewHeightMax = panel.getHeight() / 3;
-	// }
 
 	private static final void buildRow(ImageCouple imageCouple) {
 		var couplePanel = new JPanel();
@@ -130,13 +128,19 @@ public class ImageListerSideBySide {
 		var labelLeft = new JTextField(imageCouple.imageLeft);
 		var labelRight = new JTextField(imageCouple.imageRight);
 
-		couplePanel.add(labelLeft, buildGBC(0, 0, FULL_PADDING, FULL_PADDING));
-		couplePanel.add(labelRight, buildGBC(0, 1, FULL_PADDING, FULL_PADDING));
-		couplePanel.add(imageComponentLeft, buildGBC(1, 0, FULL_PADDING, FULL_PADDING));
-		couplePanel.add(imageComponentRight, buildGBC(1, 1, FULL_PADDING, FULL_PADDING));
+		couplePanel.add(labelLeft, buildGBC(0, 0, HALF_PADDING, 0, EAST));
+		couplePanel.add(labelRight, buildGBC(1, 0, HALF_PADDING, 0, WEST));
+		couplePanel.add(imageComponentLeft, buildGBC(0, 1, 0, HALF_PADDING, EAST));
+		couplePanel.add(imageComponentRight, buildGBC(1, 1, 0, HALF_PADDING, WEST));
+
+		frame.revalidate();
 	}
 
 	private static final void onInitPressed() {
+
+		imagePreviewWidthMax = textArea.getWidth() / 3;
+		imagePreviewHeightMax = textArea.getHeight() / 3;
+	
 		var inputText = textArea.getText();
 		var lineList = inputText.split("\n");
 		var imageList = new LinkedList<String>();
@@ -162,6 +166,7 @@ public class ImageListerSideBySide {
 		frame.getContentPane().add(pane);
 
 		panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		pane.setViewportView(panel);
 
 		imageCoupleList.forEach(ImageListerSideBySide::buildRow);
@@ -185,7 +190,7 @@ public class ImageListerSideBySide {
 			newWidth = (int) (newHeight * aspectRatio);
 		}
 
-		out.format("ImageListerSideBySide.resizeImage; originalWidth: %d; originalHeight: %d; newWidth: %d; newHeight %d\n", originalWidth, originalHeight, newWidth, newHeight);
+		out.format("ImageListerSideBySide.resizeImage; originalWidth: %d; originalHeight: %d; maxWidth: %d; maxHeight: %d; newWidth: %d; newHeight: %d\n", originalWidth, originalHeight, maxWidth, maxHeight, newWidth, newHeight);
 		BufferedImage newImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
 		newImage.createGraphics().drawImage(originalImage, 0, 0, newWidth, newHeight, null);
 		return newImage;
