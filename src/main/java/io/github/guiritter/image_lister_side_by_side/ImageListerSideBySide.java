@@ -1,5 +1,6 @@
 package io.github.guiritter.image_lister_side_by_side;
 
+import static java.awt.GridBagConstraints.CENTER;
 import static java.awt.GridBagConstraints.EAST;
 import static java.awt.GridBagConstraints.WEST;
 import static java.lang.System.exit;
@@ -87,6 +88,7 @@ public class ImageListerSideBySide {
 	}
 
 	private static final void buildRow(ImageCouple imageCouple) {
+		out.format("ImageListerSideBySide.buildRow; imageCouple: %s\n", imageCouple);
 		var couplePanel = new JPanel();
 		panel.add(couplePanel);
 
@@ -99,6 +101,7 @@ public class ImageListerSideBySide {
 			imageLeft = ImageIO.read(new File(imageCouple.imageLeft));
 			imageRight = ImageIO.read(new File(imageCouple.imageRight));
 		} catch (IOException e) {
+			out.format("ImageListerSideBySide.buildRow; error reading image; imageCouple: %s\n", imageCouple);
 			e.printStackTrace();
 			showMessageDialog(frame, "error reading image", "error", ERROR_MESSAGE);
 			exit(0);
@@ -119,12 +122,23 @@ public class ImageListerSideBySide {
 		var labelLeft = new JTextField(imageCouple.imageLeft);
 		var labelRight = new JTextField(imageCouple.imageRight);
 
+		var removeListener = (ActionListener) e -> {
+			imageCoupleList.remove(imageCouple);
+			panel.remove(couplePanel);
+			frame.revalidate();
+		};
+
+		var removeButton = new JButton("remove");
+		removeButton.addActionListener(removeListener);
+		removeButton.setAlignmentX(JButton.CENTER_ALIGNMENT);
+
 		couplePanel.add(labelLeft, buildGBC(0, 0, HALF_PADDING, 0, EAST));
 		couplePanel.add(labelRight, buildGBC(1, 0, HALF_PADDING, 0, WEST));
 		couplePanel.add(sizeLeft, buildGBC(0, 1, 0, 0, EAST));
 		couplePanel.add(sizeRight, buildGBC(1, 1, 0, 0, WEST));
-		couplePanel.add(imageComponentLeft, buildGBC(0, 2, 0, HALF_PADDING, EAST));
-		couplePanel.add(imageComponentRight, buildGBC(1, 2, 0, HALF_PADDING, WEST));
+		couplePanel.add(imageComponentLeft, buildGBC(0, 2, 0, 0, EAST));
+		couplePanel.add(imageComponentRight, buildGBC(1, 2, 0, 0, WEST));
+		couplePanel.add(removeButton, buildGBC(0, 3, 0, HALF_PADDING, CENTER));
 
 		frame.revalidate();
 	}
@@ -181,7 +195,7 @@ public class ImageListerSideBySide {
 			newWidth = (int) (newHeight * aspectRatio);
 		}
 
-		out.format("ImageListerSideBySide.resizeImage; originalWidth: %d; originalHeight: %d; maxWidth: %d; maxHeight: %d; newWidth: %d; newHeight: %d\n", originalWidth, originalHeight, maxWidth, maxHeight, newWidth, newHeight);
+		// out.format("ImageListerSideBySide.resizeImage; originalWidth: %d; originalHeight: %d; maxWidth: %d; maxHeight: %d; newWidth: %d; newHeight: %d\n", originalWidth, originalHeight, maxWidth, maxHeight, newWidth, newHeight);
 		BufferedImage newImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
 		newImage.createGraphics().drawImage(originalImage, 0, 0, newWidth, newHeight, null);
 		return newImage;

@@ -8,4 +8,9 @@ public class ImageCouple {
 		imageLeft = _imageLeft;
 		imageRight = _imageRight;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("ImageCouple [imageLeft=%s, imageRight=%s]", imageLeft, imageRight);
+	}
 }
